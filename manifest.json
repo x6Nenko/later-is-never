@@ -1,16 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Timed Watch Later for YouTube",
+  "name": "Later is Never",
   "version": "1.0.0",
   "description": "Save YouTube videos with automatic expiration. Videos are auto-deleted after a customizable period (default: 1 week).",
-  "permissions": [
-    "storage",
-    "alarms",
-    "notifications"
-  ],
-  "host_permissions": [
-    "*://*.youtube.com/*"
-  ],
+  "permissions": ["storage", "alarms", "notifications"],
+  "host_permissions": ["*://*.youtube.com/*"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

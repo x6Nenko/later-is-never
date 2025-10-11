@@ -1,4 +1,4 @@
-# Timed Watch Later for YouTube
+# Later is Never
 
 A Chrome extension that saves YouTube videos with automatic expiration. Videos are auto-deleted after a customizable period (default: 1 week).
 
@@ -9,20 +9,24 @@ Basic project structure has been set up and is ready for testing.
 ## How to Load the Extension in Chrome
 
 1. **Create Icon Files** (Required for testing):
+
    - Navigate to the `icons/` folder
    - Add three PNG files: `icon16.png`, `icon48.png`, and `icon128.png`
    - You can use any placeholder images with the correct dimensions for now
    - See `icons/README.md` for more details
 
 2. **Open Chrome Extensions Page**:
+
    - Open Chrome browser
    - Navigate to `chrome://extensions/`
    - Or click the three-dot menu → More tools → Extensions
 
 3. **Enable Developer Mode**:
+
    - Toggle the "Developer mode" switch in the top-right corner
 
 4. **Load the Extension**:
+
    - Click "Load unpacked" button
    - Navigate to this project folder: `h:\coding\webmastering\in progress\chrome\yt-watch-a-bit-later`
    - Click "Select Folder"
@@ -35,6 +39,7 @@ Basic project structure has been set up and is ready for testing.
 ## Testing Phase 1
 
 After loading the extension:
+
 - ✅ Extension should load without critical errors
 - ✅ Clicking the extension icon should show the basic popup
 - ✅ Opening YouTube should load the content script (check console)
