@@ -2,9 +2,9 @@
 
 A Chrome extension that saves YouTube videos with automatic expiration. Videos are auto-deleted after a customizable period (default: 1 week).
 
-## Current Status: Phase 1 Complete ✅
+## Current Status: Phase 2 Complete ✅
 
-Basic project structure has been set up and is ready for testing.
+Core functionality is implemented! You can now save YouTube videos and view them in the popup.
 
 ## How to Load the Extension in Chrome
 
@@ -36,52 +36,69 @@ Basic project structure has been set up and is ready for testing.
    - You should see the extension icon in your toolbar
    - Check the console for any errors
 
-## Testing Phase 1
+## Testing Phase 2
 
-After loading the extension:
+See [PHASE2-TESTING.md](PHASE2-TESTING.md) for detailed testing instructions.
 
-- ✅ Extension should load without critical errors
-- ✅ Clicking the extension icon should show the basic popup
-- ✅ Opening YouTube should load the content script (check console)
-- ⚠️ Note: Icons warnings are expected if placeholder icons aren't added yet
+Quick test:
+1. Go to any YouTube video
+2. Click the extension icon
+3. Click "Save to Watch Later"
+4. Video appears in your saved list!
+
+Features working:
+- ✅ Save videos from YouTube
+- ✅ View all saved videos
+- ✅ Delete videos manually
+- ✅ Expiration countdown display
+- ✅ Clickable video links
+- ✅ Duplicate detection
 
 ## Project Structure
 
 ```
 my-extension/
 ├── manifest.json          # Extension configuration ✅
-├── content.js            # Injects button into YouTube pages (placeholder) ✅
-├── popup.html            # UI for viewing saved videos (basic) ✅
-├── popup.js              # Logic for popup interface (placeholder) ✅
-├── background.js         # Service worker for notifications & cleanup (placeholder) ✅
-├── storage.js            # Helper functions for data management (placeholder) ✅
-├── styles.css            # Styling for popup (basic) ✅
+├── content.js            # Content script (minimal, not needed for popup approach) ✅
+├── popup.html            # Popup UI ✅
+├── popup.js              # Popup logic - saves & displays videos ✅
+├── background.js         # Service worker (placeholder for Phase 5) ✅
+├── storage.js            # Storage helper functions ✅
+├── styles.css            # Popup styling ✅
 ├── icons/                # Extension icons folder ✅
 │   └── README.md         # Icon instructions ✅
 ├── README.md             # This file ✅
+├── PHASE2-TESTING.md     # Phase 2 testing guide ✅
 └── plan.md               # Development roadmap ✅
 ```
 
-## Next Steps (Phase 2)
+## Next Steps (Phase 3)
 
-- Inject custom "Save" button next to YouTube's save button
-- Capture video data (URL, title, thumbnail, timestamp)
-- Store videos in chrome.storage.local
-- Create functional popup to display saved videos
+- Implement background worker for automatic cleanup
+- Add periodic checks for expired videos
+- Improve expiration time calculations
+- Add badge to show count of saved videos
 
-## Features (Planned)
+## Features
 
-- ⏰ Custom "Save" button on every YouTube video
-- 📋 Separate watch later list stored locally
-- 🗑️ Auto-deletion after customizable period (default: 1 week)
-- 🔔 Optional notifications before video expires
-- ⏳ Visual countdown for each saved video
-- ⚙️ Customizable settings
+✅ **Working Now:**
+- 💾 Save videos by clicking extension icon on YouTube
+- 📋 View all saved videos in popup
+- 🗑️ Manual delete with × button
+- ⏳ Expiration countdown (7 days default)
+- 🔗 Clickable video links
+- 🚫 Duplicate detection
+
+🚧 **Coming Soon:**
+- 🤖 Automatic cleanup of expired videos
+- 🔔 Notifications before videos expire
+- ⚙️ Customizable expiration period
+- 📊 Video count badge
 
 ## Development Phases
 
 - [x] **Phase 1**: Basic Setup
-- [ ] **Phase 2**: Core Functionality
-- [ ] **Phase 3**: Deletion Logic
+- [x] **Phase 2**: Core Functionality (Save & Display Videos)
+- [ ] **Phase 3**: Automatic Deletion Logic
 - [ ] **Phase 4**: Settings & Polish
 - [ ] **Phase 5**: Notifications

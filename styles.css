@@ -1,10 +1,15 @@
-/* Styles for popup and YouTube button */
+/* Styles for popup */
+* {
+  box-sizing: border-box;
+}
+
 body {
-  width: 400px;
-  min-height: 200px;
+  width: 450px;
+  max-height: 600px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   margin: 0;
   padding: 0;
+  background: #f9f9f9;
 }
 
 .container {
@@ -12,13 +17,234 @@ body {
 }
 
 h1 {
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 600;
   margin: 0 0 16px 0;
   color: #030303;
 }
 
-#video-list {
-  color: #606060;
+h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+  color: #030303;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* TODO: Add more styles in Phase 4 */
+/* Save Section */
+#save-section {
+  margin-bottom: 20px;
+}
+
+.current-video {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.current-video h2 {
+  margin-top: 0;
+}
+
+.video-info {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.video-info img {
+  width: 120px;
+  height: 90px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.video-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.video-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #030303;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.video-channel {
+  font-size: 12px;
+  color: #606060;
+  margin: 0;
+}
+
+#save-btn {
+  width: 100%;
+  padding: 10px;
+  background: #065fd4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#save-btn:hover {
+  background: #0553c2;
+}
+
+#save-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+#save-btn.saved {
+  background: #28a745;
+  cursor: default;
+}
+
+#save-btn.saved:hover {
+  background: #28a745;
+}
+
+/* Video List */
+#video-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.empty-state {
+  color: #606060;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.video-item {
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 10px;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+}
+
+.video-item:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.video-thumbnail {
+  width: 100px;
+  height: 75px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.video-content {
+  flex: 1;
+  min-width: 0;
+  padding-right: 30px;
+}
+
+.video-item .video-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #065fd4;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 4px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.video-item .video-title:hover {
+  text-decoration: underline;
+}
+
+.video-item .video-channel {
+  font-size: 12px;
+  color: #606060;
+  margin: 0 0 4px 0;
+}
+
+.video-expires {
+  font-size: 11px;
+  color: #d93025;
+  margin: 0;
+  font-weight: 500;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  color: #606060;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn:hover {
+  background: #d93025;
+  color: white;
+}
+
+/* Error State */
+.error {
+  background: #fef7e0;
+  border: 1px solid #f9e0a5;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.error p {
+  margin: 0;
+  font-size: 13px;
+  color: #856404;
+}
+
+/* Scrollbar styling */
+#video-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+#video-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#video-list::-webkit-scrollbar-thumb {
+  background: #cccccc;
+  border-radius: 4px;
+}
+
+#video-list::-webkit-scrollbar-thumb:hover {
+  background: #aaaaaa;
+}

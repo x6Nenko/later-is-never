@@ -27,12 +27,13 @@ Create manifest.json with necessary permissions
 Set up basic project structure
 Test that extension loads in Chrome
 
-Phase 2: Core Functionality
+Phase 2: Core Functionality 🚧 IN PROGRESS
 
-Inject custom "Save" button next to YouTube's button
-Capture video data (URL, title, thumbnail, timestamp)
+Detect when user opens popup on a YouTube video page
+Extract video data (URL, title, thumbnail, timestamp) from current page
 Store videos in chrome.storage.local
-Create basic popup to display saved videos
+Show "Save Current Video" button in popup when on YouTube
+Display saved videos list in popup
 
 Phase 3: Deletion Logic
 

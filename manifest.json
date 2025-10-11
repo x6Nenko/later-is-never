@@ -3,7 +3,13 @@
   "name": "Later is Never",
   "version": "1.0.0",
   "description": "Save YouTube videos with automatic expiration. Videos are auto-deleted after a customizable period (default: 1 week).",
-  "permissions": ["storage", "alarms", "notifications"],
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "scripting",
+    "activeTab"
+  ],
   "host_permissions": ["*://*.youtube.com/*"],
   "action": {
     "default_popup": "popup.html",

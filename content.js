@@ -1,4 +1,3 @@
-// Content script - Injects custom "Save" button into YouTube pages
-console.log('Timed Watch Later: Content script loaded');
-
-// TODO: Implement button injection in Phase 2
+// Content script - Not needed for popup-based approach
+// This file is kept for future features if needed
+console.log("Later is Never: Content script loaded");
