@@ -1,0 +1,24 @@
+/* Styles for popup and YouTube button */
+body {
+  width: 400px;
+  min-height: 200px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  padding: 16px;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0 0 16px 0;
+  color: #030303;
+}
+
+#video-list {
+  color: #606060;
+}
+
+/* TODO: Add more styles in Phase 4 */
