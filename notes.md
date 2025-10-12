@@ -79,15 +79,22 @@
   - Video thumbnails and clickable titles
   - Settings view with radio button selection
 
-- **[background.js](background.js)**: Service worker (currently minimal)
-  - Required by manifest but doesn't implement any active logic
+- **[background.js](background.js)**: Service worker
+  - Imports [storage.js](storage.js) using `importScripts()`
+  - Handles messages from content script:
+    - `saveVideo`: Saves/renews video expiration via content script
+    - `checkVideoSaved`: Checks if video is already saved
   - Cleanup happens synchronously when popup opens (not on schedule)
   - Could be extended for scheduled alarms or notifications in future
 
-- **[content.js](content.js)**: Content script (currently unused)
-  - Originally planned for injecting UI into YouTube pages
-  - Kept as placeholder for potential future features
-  - Current approach uses popup with `chrome.scripting.executeScript` instead
+- **[content.js](content.js)**: Content script - YouTube page integration
+  - Runs on all YouTube pages (`*://*.youtube.com/*`)
+  - Automatically detects video thumbnails on any YouTube page (home, search, etc.)
+  - Adds ⏰ button next to the "..." menu button on each video
+  - Extracts video metadata (title, channel, thumbnail) from video renderer elements
+  - Sends messages to background script to save videos
+  - Shows toast notifications for save/renew actions
+  - Uses MutationObserver to detect dynamically loaded videos (YouTube is a SPA)
 
 ### Key Technical Decisions
 
@@ -95,7 +102,9 @@
 
 2. **Expiration Check Timing**: Expired videos are deleted when popup opens ([popup.js:156](popup.js#L156)), not on a background schedule. This simplifies implementation and avoids background worker complexity. Chrome's service workers are ephemeral and would require alarms for scheduled cleanup.
 
-3. **YouTube Data Extraction**: Uses `chrome.scripting.executeScript` with function injection ([popup.js:40-44](popup.js#L40-L44)) rather than content scripts. This allows on-demand data extraction only when user clicks extension icon.
+3. **YouTube Data Extraction**:
+   - **Popup**: Uses `chrome.scripting.executeScript` with function injection ([popup.js:40-44](popup.js#L40-L44)) for on-demand extraction when viewing a video page
+   - **Content Script**: Extracts metadata from video renderer elements ([content.js:54-125](content.js#L54-L125)) for quick saves from any YouTube page. Uses multiple fallback methods for title extraction (text content, aria-label, title attribute) to handle different YouTube layouts.
 
 4. **Settings Implementation**: Expiration period stored in milliseconds to support flexible duration options. Settings are loaded fresh each time popup opens to ensure consistency.
 
