@@ -116,11 +116,24 @@ async function showSaveButton(tab) {
 }
 
 // This function runs in the context of the YouTube page
+// Note: Must be self-contained as it's injected via chrome.scripting.executeScript
 function extractVideoData() {
   try {
+    // Validate YouTube URL first (inline validation since this runs in page context)
+    const hostname = window.location.hostname;
+    if (!hostname.endsWith('youtube.com') && !hostname.endsWith('youtu.be')) {
+      console.warn("Not a YouTube page, skipping:", window.location.href);
+      return null;
+    }
+
     // Extract video ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get("v");
+
+    if (!videoId) {
+      console.warn("No video ID found in URL");
+      return null;
+    }
 
     // Get video title
     const titleElement = document.querySelector(

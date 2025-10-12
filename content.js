@@ -4,6 +4,17 @@ console.log("Later is Never: Content script loaded v2");
 // Track processed videos to avoid duplicate buttons
 const processedVideos = new WeakSet();
 
+// Validate YouTube URL
+function isValidYouTubeUrl(urlString) {
+  try {
+    const url = new URL(urlString);
+    return url.hostname.endsWith('youtube.com') || url.hostname.endsWith('youtu.be');
+  } catch (error) {
+    console.warn("Invalid URL encountered:", urlString, error);
+    return false;
+  }
+}
+
 // Lucide clock-plus icon SVG
 const CLOCK_PLUS_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v6l3.644 1.822"/><path d="M16 19h6"/><path d="M19 16v6"/><path d="M21.92 13.267a10 10 0 1 0-8.653 8.653"/></svg>`;
 
@@ -71,6 +82,12 @@ function extractVideoData(renderer) {
     const linkElement = titleLinkElement || anyLinkElement;
 
     if (!linkElement || !linkElement.href) {
+      return null;
+    }
+
+    // Validate YouTube URL
+    if (!isValidYouTubeUrl(linkElement.href)) {
+      console.warn("Non-YouTube URL detected, skipping:", linkElement.href);
       return null;
     }
 
