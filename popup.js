@@ -14,6 +14,11 @@ script.onload = () => {
 async function initializePopup() {
   console.log("Initializing popup...");
 
+  // Settings button handler
+  document.getElementById("settings-btn").addEventListener("click", () => {
+    showSettingsView();
+  });
+
   // Check if we're on a YouTube video page
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const isYouTubeVideo =
@@ -38,8 +43,11 @@ async function showSaveButton(tab) {
       func: extractVideoData,
     });
 
+    console.log("Script execution results:", results);
+
     if (results && results[0] && results[0].result) {
       const videoData = results[0].result;
+      console.log("Extracted video data:", videoData);
 
       // Check if already saved
       const alreadySaved = await isVideoSaved(videoData.videoId);
@@ -83,6 +91,13 @@ async function showSaveButton(tab) {
           }
         });
       }
+    } else {
+      console.warn("Failed to extract video data - result was null or invalid");
+      container.innerHTML = `
+        <div class="error">
+          <p>Could not extract video data. Make sure the video page is fully loaded.</p>
+        </div>
+      `;
     }
   } catch (error) {
     console.error("Error showing save button:", error);
@@ -161,13 +176,19 @@ function createVideoElement(video) {
   div.className = "video-item";
 
   const timeRemaining = getTimeRemaining(video.expiresAt);
+  const progressInfo = getExpirationProgress(video.savedAt, video.expiresAt);
 
   div.innerHTML = `
     <img src="${video.thumbnail}" alt="Thumbnail" class="video-thumbnail">
     <div class="video-content">
       <a href="${video.url}" target="_blank" class="video-title">${video.title}</a>
       <p class="video-channel">${video.channelName}</p>
-      <p class="video-expires">Expires ${timeRemaining}</p>
+      <div class="expiration-info">
+        <p class="video-expires ${progressInfo.urgencyClass}">Expires ${timeRemaining}</p>
+        <div class="progress-bar">
+          <div class="progress-fill ${progressInfo.urgencyClass}" style="width: ${progressInfo.percentage}%"></div>
+        </div>
+      </div>
     </div>
     <button class="delete-btn" data-video-id="${video.videoId}" title="Delete">×</button>
   `;
@@ -202,5 +223,126 @@ function getTimeRemaining(expiresAt) {
   } else {
     const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
     return `in ${minutes} minute${minutes > 1 ? "s" : ""}`;
+  }
+}
+
+function getExpirationProgress(savedAt, expiresAt) {
+  const now = Date.now();
+  const totalDuration = expiresAt - savedAt;
+  const elapsed = now - savedAt;
+  const remaining = expiresAt - now;
+
+  // Calculate percentage of time remaining (100% = just saved, 0% = expired)
+  let percentage = ((totalDuration - elapsed) / totalDuration) * 100;
+  percentage = Math.max(0, Math.min(100, percentage)); // Clamp between 0-100
+
+  // Determine urgency class based on remaining percentage
+  let urgencyClass = "safe"; // Green - more than 50% time left
+  if (percentage < 25) {
+    urgencyClass = "critical"; // Red - less than 25% time left
+  } else if (percentage < 50) {
+    urgencyClass = "warning"; // Yellow - less than 50% time left
+  }
+
+  // If expired, override
+  if (remaining < 0) {
+    urgencyClass = "expired";
+    percentage = 0;
+  }
+
+  return {
+    percentage: percentage.toFixed(1),
+    urgencyClass: urgencyClass,
+  };
+}
+
+// Settings view functions
+// Note: SETTINGS_KEY and DEFAULT_EXPIRATION are defined in storage.js
+
+function showSettingsView() {
+  document.getElementById("main-view").style.display = "none";
+  document.getElementById("settings-view").style.display = "block";
+  loadSettings();
+  setupSettingsListeners();
+}
+
+function showMainView() {
+  document.getElementById("settings-view").style.display = "none";
+  document.getElementById("main-view").style.display = "block";
+  displaySavedVideos(); // Refresh the list
+}
+
+async function loadSettings() {
+  try {
+    const result = await chrome.storage.local.get(SETTINGS_KEY);
+    const settings = result[SETTINGS_KEY] || { expirationPeriod: DEFAULT_EXPIRATION };
+
+    const expirationValue = settings.expirationPeriod;
+    const radioButtons = document.querySelectorAll('input[name="expiration"]');
+
+    radioButtons.forEach((radio) => {
+      if (radio.value === expirationValue.toString()) {
+        radio.checked = true;
+        radio.closest(".radio-option").classList.add("selected");
+      } else {
+        radio.checked = false;
+        radio.closest(".radio-option").classList.remove("selected");
+      }
+    });
+  } catch (error) {
+    console.error("Error loading settings:", error);
+  }
+}
+
+function setupSettingsListeners() {
+  // Back button
+  const backBtn = document.getElementById("back-btn");
+  if (backBtn && !backBtn.hasAttribute("data-listener")) {
+    backBtn.setAttribute("data-listener", "true");
+    backBtn.addEventListener("click", showMainView);
+  }
+
+  // Radio button selection
+  const radioOptions = document.querySelectorAll(".radio-option");
+  radioOptions.forEach((option) => {
+    option.addEventListener("click", () => {
+      const radio = option.querySelector('input[type="radio"]');
+      radio.checked = true;
+
+      radioOptions.forEach((opt) => opt.classList.remove("selected"));
+      option.classList.add("selected");
+    });
+  });
+
+  // Save button
+  const saveBtn = document.getElementById("save-settings-btn");
+  if (saveBtn && !saveBtn.hasAttribute("data-listener")) {
+    saveBtn.setAttribute("data-listener", "true");
+    saveBtn.addEventListener("click", saveSettings);
+  }
+}
+
+async function saveSettings() {
+  try {
+    const selectedRadio = document.querySelector('input[name="expiration"]:checked');
+    const expirationPeriod = parseInt(selectedRadio.value);
+
+    const settings = {
+      expirationPeriod: expirationPeriod,
+    };
+
+    await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
+    console.log("Settings saved:", settings);
+
+    // Show success message
+    const saveStatus = document.getElementById("save-status");
+    saveStatus.classList.add("show");
+
+    setTimeout(() => {
+      saveStatus.classList.remove("show");
+    }, 1000);
+  } catch (error) {
+    console.error("Error saving settings:", error);
+    alert("Failed to save settings. Please try again.");
   }
 }

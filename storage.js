@@ -2,6 +2,9 @@
 console.log("Later is Never: Storage helpers loaded");
 
 const STORAGE_KEY = "savedVideos";
+const SETTINGS_KEY = "userSettings";
+const DEFAULT_EXPIRATION = 60000; // 1 minute for testing (60000ms)
+// const DEFAULT_EXPIRATION = 604800000; // 1 week for production
 
 // Get all saved videos
 async function getSavedVideos() {
@@ -14,10 +17,23 @@ async function getSavedVideos() {
   }
 }
 
+// Get expiration period from settings
+async function getExpirationPeriod() {
+  try {
+    const result = await chrome.storage.local.get(SETTINGS_KEY);
+    const settings = result[SETTINGS_KEY] || { expirationPeriod: DEFAULT_EXPIRATION };
+    return settings.expirationPeriod;
+  } catch (error) {
+    console.error("Error getting expiration period:", error);
+    return DEFAULT_EXPIRATION;
+  }
+}
+
 // Save a new video
 async function saveVideo(videoData) {
   try {
     const videos = await getSavedVideos();
+    const expirationPeriod = await getExpirationPeriod();
 
     // Check if video already exists (by videoId)
     const existingIndex = videos.findIndex(
@@ -25,18 +41,19 @@ async function saveVideo(videoData) {
     );
 
     if (existingIndex !== -1) {
-      // Update existing video's save time
+      // Update existing video's save time and expiration
       videos[existingIndex].savedAt = Date.now();
+      videos[existingIndex].expiresAt = Date.now() + expirationPeriod;
       console.log("Video already saved, updated timestamp");
     } else {
       // Add new video with timestamp
       const videoToSave = {
         ...videoData,
         savedAt: Date.now(),
-        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days from now
+        expiresAt: Date.now() + expirationPeriod,
       };
       videos.unshift(videoToSave); // Add to beginning of array
-      console.log("New video saved");
+      console.log("New video saved with expiration:", expirationPeriod, "ms");
     }
 
     await chrome.storage.local.set({ [STORAGE_KEY]: videos });

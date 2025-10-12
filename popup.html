@@ -9,8 +9,12 @@
 </head>
 
 <body>
-  <div class="container">
-    <h1>Later is Never</h1>
+  <!-- Main view -->
+  <div class="container" id="main-view">
+    <div class="header">
+      <h1>Later is Never</h1>
+      <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
+    </div>
 
     <!-- Section for saving current video (only shown on YouTube) -->
     <div id="save-section"></div>
@@ -20,6 +24,60 @@
       <p class="empty-state">Loading...</p>
     </div>
   </div>
+
+  <!-- Settings view (initially hidden) -->
+  <div class="container" id="settings-view" style="display: none;">
+    <div class="settings-header">
+      <button class="back-button" id="back-btn" title="Back to videos">←</button>
+      <h1>Settings</h1>
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">Default Expiration Period</label>
+      <p class="setting-description">Choose how long videos should be saved before automatic deletion.</p>
+
+      <div class="radio-group" id="expiration-options">
+        <label class="radio-option" data-value="60000">
+          <input type="radio" name="expiration" value="60000">
+          <span>1 minute (for testing)</span>
+        </label>
+
+        <label class="radio-option" data-value="3600000">
+          <input type="radio" name="expiration" value="3600000">
+          <span>1 hour</span>
+        </label>
+
+        <label class="radio-option" data-value="86400000">
+          <input type="radio" name="expiration" value="86400000">
+          <span>1 day</span>
+        </label>
+
+        <label class="radio-option" data-value="259200000">
+          <input type="radio" name="expiration" value="259200000">
+          <span>3 days</span>
+        </label>
+
+        <label class="radio-option" data-value="604800000">
+          <input type="radio" name="expiration" value="604800000" checked>
+          <span>1 week (default)</span>
+        </label>
+
+        <label class="radio-option" data-value="1209600000">
+          <input type="radio" name="expiration" value="1209600000">
+          <span>2 weeks</span>
+        </label>
+
+        <label class="radio-option" data-value="2592000000">
+          <input type="radio" name="expiration" value="2592000000">
+          <span>1 month</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="save-button" id="save-settings-btn">Save Settings</button>
+    <div class="save-status" id="save-status">Settings saved!</div>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 

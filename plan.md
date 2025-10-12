@@ -21,13 +21,13 @@ my-extension/
 └── icons/ (Extension icons 16x16, 48x48, 128x128)
 
 Development Roadmap
-Phase 1: Basic Setup ⭐ Start here
+Phase 1: Basic Setup ⭐ Start here ✅ COMPLETE
 
 Create manifest.json with necessary permissions
 Set up basic project structure
 Test that extension loads in Chrome
 
-Phase 2: Core Functionality 🚧 IN PROGRESS
+Phase 2: Core Functionality ✅ COMPLETE
 
 Detect when user opens popup on a YouTube video page
 Extract video data (URL, title, thumbnail, timestamp) from current page
@@ -35,28 +35,25 @@ Store videos in chrome.storage.local
 Show "Save Current Video" button in popup when on YouTube
 Display saved videos list in popup
 
-Phase 3: Deletion Logic
+Phase 3: Deletion Logic ✅ COMPLETE
 
-Implement expiration checking
-Auto-delete expired videos
-Add manual delete option
+Implement expiration checking ✓
+Auto-delete expired videos (background service worker) ✓
+Add manual delete option ✓
+Badge counter showing saved videos count ✓
 
-Phase 4: Settings & Polish
+Phase 4: Settings & Polish ✅ COMPLETE
 
 Create settings page for:
 
-Default expiration period
-Notification toggle
-Notification timing
+Default expiration period ✓
+~~Notification toggle~~ (Phase 5 ditched)
+~~Notification timing~~ (Phase 5 ditched)
 
-Add visual countdown
-Style everything nicely
+Add visual countdown ✓
+Style everything nicely ✓
 
-Phase 5: Notifications
-
-Set up service worker with alarms
-Check for videos nearing expiration
-Send individual notifications
+~~Phase 5: Notifications~~ (DITCHED - keeping it simple)
 
 Key Chrome APIs We'll Use
 
