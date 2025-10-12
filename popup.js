@@ -69,35 +69,34 @@ async function showSaveButton(tab) {
               <p class="video-channel">${videoData.channelName}</p>
             </div>
           </div>
-          <button id="save-btn" class="${alreadySaved ? "saved" : ""}">
-            ${alreadySaved ? "✓ Already Saved" : "Save to Watch Later"}
+          <button id="save-btn" class="${alreadySaved ? "renew" : ""}">
+            ${alreadySaved ? "↻ Renew Expiration" : "Save to Watch Later"}
           </button>
         </div>
       `;
 
-      // Add click handler
+      // Add click handler (works for both new saves and renewals)
       const saveBtn = document.getElementById("save-btn");
-      if (!alreadySaved) {
-        saveBtn.addEventListener("click", async () => {
-          saveBtn.disabled = true;
-          saveBtn.textContent = "Saving...";
+      saveBtn.addEventListener("click", async () => {
+        const isRenew = alreadySaved;
+        saveBtn.disabled = true;
+        saveBtn.textContent = isRenew ? "Renewing..." : "Saving...";
 
-          const success = await saveVideo(videoData);
+        const success = await saveVideo(videoData);
 
-          if (success) {
-            saveBtn.textContent = "✓ Saved!";
-            saveBtn.classList.add("saved");
+        if (success) {
+          saveBtn.textContent = isRenew ? "✓ Renewed!" : "✓ Saved!";
+          saveBtn.classList.add("saved");
 
-            // Refresh the video list
-            setTimeout(async () => {
-              await displaySavedVideos();
-            }, 500);
-          } else {
-            saveBtn.textContent = "Error - Try Again";
-            saveBtn.disabled = false;
-          }
-        });
-      }
+          // Refresh the video list
+          setTimeout(async () => {
+            await displaySavedVideos();
+          }, 500);
+        } else {
+          saveBtn.textContent = "Error - Try Again";
+          saveBtn.disabled = false;
+        }
+      });
     } else {
       console.warn("Failed to extract video data - result was null or invalid");
       container.innerHTML = `

@@ -139,6 +139,15 @@ h2 {
   background: #28a745;
 }
 
+#save-btn.renew {
+  background: #e65100;
+  cursor: pointer;
+}
+
+#save-btn.renew:hover {
+  background: #bf360c;
+}
+
 /* Video List */
 #video-list {
   max-height: 400px;
