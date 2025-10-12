@@ -1,5 +1,4 @@
 // Popup logic - Displays saved videos and handles saving
-console.log("Later is Never: Popup script loaded");
 
 // Sort order state (true = newest first, false = oldest first)
 let sortNewestFirst = true;
@@ -15,8 +14,6 @@ script.onload = () => {
 };
 
 async function initializePopup() {
-  console.log("Initializing popup...");
-
   // Load sort preference from settings
   const settings = await getSettings();
   sortNewestFirst = settings.sortNewestFirst;
@@ -50,11 +47,9 @@ async function showSaveButton(tab) {
       func: extractVideoData,
     });
 
-    console.log("Script execution results:", results);
-
     if (results && results[0] && results[0].result) {
       const videoData = results[0].result;
-      console.log("Extracted video data:", videoData);
+      // console.log("Extracted video data:", videoData);
 
       // Check if already saved
       const alreadySaved = await isVideoSaved(videoData.videoId);

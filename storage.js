@@ -1,5 +1,4 @@
 // Storage helper functions - Data management utilities
-console.log("Later is Never: Storage helpers loaded");
 
 const STORAGE_KEY = "savedVideos";
 const SETTINGS_KEY = "userSettings";
@@ -54,7 +53,6 @@ async function getExpirationPeriod() {
 async function saveSettings(settings) {
   try {
     await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
-    console.log("Settings saved:", settings);
     return true;
   } catch (error) {
     console.error("Error saving settings:", error);
@@ -77,7 +75,6 @@ async function saveVideo(videoData) {
       // Update existing video's save time and expiration
       videos[existingIndex].savedAt = Date.now();
       videos[existingIndex].expiresAt = Date.now() + expirationPeriod;
-      console.log("Video already saved, updated timestamp");
     } else {
       // Add new video with timestamp
       const videoToSave = {
@@ -86,7 +83,6 @@ async function saveVideo(videoData) {
         expiresAt: Date.now() + expirationPeriod,
       };
       videos.unshift(videoToSave); // Add to beginning of array
-      console.log("New video saved with expiration:", expirationPeriod, "ms");
     }
 
     await chrome.storage.local.set({ [STORAGE_KEY]: videos });
@@ -103,7 +99,6 @@ async function deleteVideo(videoId) {
     const videos = await getSavedVideos();
     const filteredVideos = videos.filter((v) => v.videoId !== videoId);
     await chrome.storage.local.set({ [STORAGE_KEY]: filteredVideos });
-    console.log("Video deleted:", videoId);
     return true;
   } catch (error) {
     console.error("Error deleting video:", error);
@@ -121,7 +116,6 @@ async function deleteExpiredVideos() {
 
     if (expiredCount > 0) {
       await chrome.storage.local.set({ [STORAGE_KEY]: validVideos });
-      console.log(`Deleted ${expiredCount} expired video(s)`);
     }
 
     return expiredCount;

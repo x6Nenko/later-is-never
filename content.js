@@ -1,5 +1,4 @@
 // Content script - Adds save button to YouTube videos
-console.log("Later is Never: Content script loaded v2");
 
 // Track processed videos to avoid duplicate buttons
 const processedVideos = new WeakSet();
@@ -29,8 +28,6 @@ const LOADER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="
 
 // Initialize when DOM is ready
 function init() {
-  console.log("Later is Never: Initializing...");
-
   // Add buttons to existing videos
   addButtonsToVideos();
 
@@ -43,8 +40,6 @@ function init() {
     childList: true,
     subtree: true
   });
-
-  console.log("Later is Never: Observer started");
 }
 
 // Add save buttons to all video thumbnails
@@ -207,8 +202,6 @@ async function addSaveButton(renderer, videoData) {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log("Later is Never: Save button clicked for:", videoData.videoId);
-
     // Show loading state
     saveButton.innerHTML = LOADER_ICON;
     saveButton.querySelector('svg').style.animation = 'spin 1s linear infinite';
@@ -252,8 +245,6 @@ async function addSaveButton(renderer, videoData) {
 
   // Insert the button before the menu button
   menuContainer.insertBefore(saveButton, menuContainer.firstChild);
-
-  console.log("Later is Never: Button added for video:", videoData.videoId);
 }
 
 // Check if video is already saved

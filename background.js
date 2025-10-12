@@ -1,13 +1,10 @@
 // Background service worker
-console.log("Later is Never: Background service worker loaded");
 
 // Import storage functions
 importScripts("storage.js");
 
 // Handle messages from content script
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  console.log("Background received message:", request);
-
   if (request.action === "saveVideo") {
     // Save video using storage function
     saveVideo(request.videoData)
