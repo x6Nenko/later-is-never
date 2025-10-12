@@ -17,15 +17,48 @@ async function getSavedVideos() {
   }
 }
 
+// Get user settings (with defaults)
+async function getSettings() {
+  try {
+    const result = await chrome.storage.local.get(SETTINGS_KEY);
+    const settings = result[SETTINGS_KEY] || {
+      expirationPeriod: DEFAULT_EXPIRATION,
+      sortNewestFirst: true
+    };
+    // Ensure sortNewestFirst has a default if not set
+    if (settings.sortNewestFirst === undefined) {
+      settings.sortNewestFirst = true;
+    }
+    return settings;
+  } catch (error) {
+    console.error("Error getting settings:", error);
+    return {
+      expirationPeriod: DEFAULT_EXPIRATION,
+      sortNewestFirst: true
+    };
+  }
+}
+
 // Get expiration period from settings
 async function getExpirationPeriod() {
   try {
-    const result = await chrome.storage.local.get(SETTINGS_KEY);
-    const settings = result[SETTINGS_KEY] || { expirationPeriod: DEFAULT_EXPIRATION };
+    const settings = await getSettings();
     return settings.expirationPeriod;
   } catch (error) {
     console.error("Error getting expiration period:", error);
     return DEFAULT_EXPIRATION;
+  }
+}
+
+// Save user settings
+async function saveSettings(settings) {
+  try {
+    await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
+    console.log("Settings saved:", settings);
+    return true;
+  } catch (error) {
+    console.error("Error saving settings:", error);
+    return false;
   }
 }
 

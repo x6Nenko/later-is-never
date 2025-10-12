@@ -145,6 +145,39 @@ h2 {
   overflow-y: auto;
 }
 
+.video-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.video-list-header h2 {
+  margin: 16px 0 0 0;
+}
+
+.sort-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+  color: #606060;
+}
+
+.sort-toggle-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.sort-toggle-btn svg {
+  display: block;
+}
+
 .empty-state {
   color: #606060;
   text-align: center;

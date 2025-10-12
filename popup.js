@@ -1,6 +1,9 @@
 // Popup logic - Displays saved videos and handles saving
 console.log("Later is Never: Popup script loaded");
 
+// Sort order state (true = newest first, false = oldest first)
+let sortNewestFirst = true;
+
 // Import storage functions by loading the script
 const script = document.createElement("script");
 script.src = "storage.js";
@@ -13,6 +16,10 @@ script.onload = () => {
 
 async function initializePopup() {
   console.log("Initializing popup...");
+
+  // Load sort preference from settings
+  const settings = await getSettings();
+  sortNewestFirst = settings.sortNewestFirst;
 
   // Settings button handler
   document.getElementById("settings-btn").addEventListener("click", () => {
@@ -156,15 +163,47 @@ async function displaySavedVideos() {
   await deleteExpiredVideos();
 
   // Get all saved videos
-  const videos = await getSavedVideos();
+  let videos = await getSavedVideos();
 
   if (videos.length === 0) {
     container.innerHTML = '<p class="empty-state">No saved videos yet.</p>';
     return;
   }
 
-  container.innerHTML = "<h2>Saved Videos</h2>";
+  // Apply sort order
+  if (!sortNewestFirst) {
+    videos = videos.reverse();
+  }
 
+  // Create header with sort toggle
+  container.innerHTML = `
+    <div class="video-list-header">
+      <h2>Saved Videos</h2>
+      <button id="sort-toggle-btn" class="sort-toggle-btn" title="${sortNewestFirst ? 'Sort oldest first' : 'Sort newest first'}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          ${sortNewestFirst
+            ? '<path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M17 10V4h-2"/><path d="M15 10h4"/><rect x="15" y="14" width="4" height="6" ry="2"/>'
+            : '<path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><rect x="15" y="4" width="4" height="6" ry="2"/><path d="M17 20v-6h-2"/><path d="M15 20h4"/>'
+          }
+        </svg>
+      </button>
+    </div>
+  `;
+
+  // Add sort toggle handler
+  const sortToggleBtn = document.getElementById("sort-toggle-btn");
+  sortToggleBtn.addEventListener("click", async () => {
+    sortNewestFirst = !sortNewestFirst;
+
+    // Save the sort preference to settings
+    const settings = await getSettings();
+    settings.sortNewestFirst = sortNewestFirst;
+    await saveSettings(settings);
+
+    displaySavedVideos();
+  });
+
+  // Append video elements
   videos.forEach((video) => {
     const videoElement = createVideoElement(video);
     container.appendChild(videoElement);
@@ -274,8 +313,7 @@ function showMainView() {
 
 async function loadSettings() {
   try {
-    const result = await chrome.storage.local.get(SETTINGS_KEY);
-    const settings = result[SETTINGS_KEY] || { expirationPeriod: DEFAULT_EXPIRATION };
+    const settings = await getSettings();
 
     const expirationValue = settings.expirationPeriod;
     const radioButtons = document.querySelectorAll('input[name="expiration"]');
@@ -318,21 +356,20 @@ function setupSettingsListeners() {
   const saveBtn = document.getElementById("save-settings-btn");
   if (saveBtn && !saveBtn.hasAttribute("data-listener")) {
     saveBtn.setAttribute("data-listener", "true");
-    saveBtn.addEventListener("click", saveSettings);
+    saveBtn.addEventListener("click", saveSettingsView);
   }
 }
 
-async function saveSettings() {
+async function saveSettingsView() {
   try {
     const selectedRadio = document.querySelector('input[name="expiration"]:checked');
     const expirationPeriod = parseInt(selectedRadio.value);
 
-    const settings = {
-      expirationPeriod: expirationPeriod,
-    };
+    // Get existing settings and update only the expiration period
+    const settings = await getSettings();
+    settings.expirationPeriod = expirationPeriod;
 
-    await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
-    console.log("Settings saved:", settings);
+    await saveSettings(settings);
 
     // Show success message
     const saveStatus = document.getElementById("save-status");
