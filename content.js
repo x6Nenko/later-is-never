@@ -3,6 +3,10 @@
 // Track processed videos to avoid duplicate buttons
 const processedVideos = new WeakSet();
 
+// Lock to prevent concurrent execution of addButtonsToVideos
+let isAddingButtons = false;
+let pendingRun = false; // Flag to indicate a run was requested while locked
+
 // Validate YouTube URL
 function isValidYouTubeUrl(urlString) {
   try {
@@ -27,13 +31,43 @@ const X_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" v
 const LOADER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>`;
 
 // Initialize when DOM is ready
-function init() {
+async function init() {
   // Add buttons to existing videos
-  addButtonsToVideos();
+  await addButtonsToVideos();
+
+  // Listen for YouTube SPA navigation (e.g., clicking logo, links)
+  document.addEventListener('yt-navigate-finish', () => {
+    // Small delay to let YouTube finish rendering
+    setTimeout(() => addButtonsToVideos(), 100);
+  });
 
   // Watch for new videos being added (YouTube is a SPA)
-  const observer = new MutationObserver(() => {
-    addButtonsToVideos();
+  const observer = new MutationObserver(async (mutations) => {
+    // Only process if we detect new video renderer elements being added
+    let hasNewVideos = false;
+
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        // Check if this is a video renderer or contains video renderers
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (node.matches && node.matches('ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-compact-video-renderer')) {
+            hasNewVideos = true;
+            break;
+          }
+          // Check if added node contains video renderers
+          if (node.querySelector && node.querySelector('ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-compact-video-renderer')) {
+            hasNewVideos = true;
+            break;
+          }
+        }
+      }
+      if (hasNewVideos) break;
+    }
+
+    // Only run if we actually detected new videos
+    if (hasNewVideos) {
+      await addButtonsToVideos();
+    }
   });
 
   observer.observe(document.body, {
@@ -43,29 +77,54 @@ function init() {
 }
 
 // Add save buttons to all video thumbnails
-function addButtonsToVideos() {
-  // Find all video renderers on the page
-  const videoRenderers = document.querySelectorAll(
-    'ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-compact-video-renderer'
-  );
+async function addButtonsToVideos() {
+  // Prevent concurrent executions
+  if (isAddingButtons) {
+    pendingRun = true; // Mark that we need to run again after current execution
+    return;
+  }
 
-  videoRenderers.forEach(renderer => {
-    if (processedVideos.has(renderer)) {
-      return;
+  isAddingButtons = true;
+  pendingRun = false; // Clear any pending flag at start
+
+  try {
+    // Find all video renderers on the page
+    const videoRenderers = document.querySelectorAll(
+      'ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-compact-video-renderer'
+    );
+
+    for (const renderer of videoRenderers) {
+      // Check if button already exists (simple and reliable check)
+      const buttonExists = renderer.querySelector('.later-is-never-save-btn');
+
+      if (buttonExists) {
+        // Already has button, skip
+        continue;
+      }
+
+      // If we get here, button doesn't exist - we need to add it
+      // (Don't skip based on WeakSet - YouTube reuses DOM elements)
+
+      // Extract video data
+      const videoData = extractVideoData(renderer);
+      if (!videoData) {
+        continue;
+      }
+
+      // Mark as processed (mainly to track what we've seen, not used for skipping)
+      processedVideos.add(renderer);
+
+      // Add our button - AWAIT to prevent race conditions
+      await addSaveButton(renderer, videoData);
     }
+  } finally {
+    isAddingButtons = false;
 
-    // Extract video data
-    const videoData = extractVideoData(renderer);
-    if (!videoData) {
-      return;
+    // If a run was requested while we were locked, run again
+    if (pendingRun) {
+      setTimeout(() => addButtonsToVideos(), 100); // Small delay to let DOM settle
     }
-
-    // Mark as processed
-    processedVideos.add(renderer);
-
-    // Add our button
-    addSaveButton(renderer, videoData);
-  });
+  }
 }
 
 // Extract video data from renderer element
@@ -82,7 +141,6 @@ function extractVideoData(renderer) {
 
     // Validate YouTube URL
     if (!isValidYouTubeUrl(linkElement.href)) {
-      console.warn("Non-YouTube URL detected, skipping:", linkElement.href);
       return null;
     }
 
@@ -154,16 +212,17 @@ async function addSaveButton(renderer, videoData) {
   const isSaved = await checkIfVideoSaved(videoData.videoId);
 
   // Find where to insert the button (next to the menu button)
-  const menuButton = renderer.querySelector('button[aria-label="Ещё"], button[aria-label="More actions"], button-view-model button');
+  // Use language-independent selector - find the three-dot menu button by structure, not text
+  const menuButton = renderer.querySelector('button-view-model button');
+
   if (!menuButton) {
-    console.log("Later is Never: Menu button not found");
-    return;
+    return; // Can't find menu button
   }
 
   const menuContainer = menuButton.closest('.yt-lockup-metadata-view-model__menu-button, #menu');
+
   if (!menuContainer) {
-    console.log("Later is Never: Menu container not found");
-    return;
+    return; // Can't find menu container
   }
 
   // Create our save button
